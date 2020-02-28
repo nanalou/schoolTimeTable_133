@@ -7,31 +7,36 @@ $(function () {
     }
 
     function showData(params) {
-        //is that efficient?
-        $("body")
-        .after('<select name="" id="shoolClassSelector"></select>')
-        .after('<select name="" id="jobSelector"></select>')
-
         showJobSelector()
-        showShoolClassSelector()
+        showSchoolClassSelector()
     }
 
-    function showShoolClassSelector(params) {
-        getShoolClasses(params).then(function (shoolClasses) {
-            const selectOptions = shoolClasses.map((shoolClass) => '<option value=' + shoolClass.klasse_id + '>' + shoolClass.klasse_name + '</option>')
-            $('#shoolClassSelector').empty()
+    function showSchoolClassSelector(params) {
+        getSchoolClasses(params).then(function (schoolClasses) {
+            if(!params) {
+                $("body").append('<select name="" id="schoolClassSelector"></select>')
+            }
+            const schoolClassSelector = $("#schoolClassSelector")
+            schoolClassSelector.empty().append('<option value="">Select your class</option>')
+
+            const selectOptions = schoolClasses.map((schoolClass) => '<option value=' + schoolClass.klasse_id + '>' + schoolClass.klasse_name + '</option>')
+            $('#schoolClassSelector')
             .append(selectOptions) 
         }); 
     }
 
     function showJobSelector() {
         getJobs().then(function (jobs) { 
+            $("body").append('<select name="" id="jobSelector"></select>')
+            jobSelector = $("#jobSelector")
+            jobSelector.empty().append('<option value="">Select your job</option>')
+
             const selectOptions = jobs.map((job) => '<option value=' + job.beruf_id + '>' + job.beruf_name + '</option>')
-            $('#jobSelector')
+            jobSelector
             .append(selectOptions)
             .change(function () {
                 const choosenJob = $(this).children("option:selected").val();
-                showShoolClassSelector(choosenJob)
+                showSchoolClassSelector(choosenJob)
             });
         }); 
     }
@@ -47,7 +52,7 @@ $(function () {
             });
         }
     
-    function getShoolClasses(param) {  
+    function getSchoolClasses(param) {  
         return $.getJSON("http://sandbox.gibm.ch/klassen.php", param ? {beruf_id : param} : null)
             .done(function (data) {
                 return data
