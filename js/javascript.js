@@ -1,9 +1,6 @@
 $(function () {
   function showPreloader() {
-    if ($.status < 4) {
-      $("body").after('<p>loading</p>')
-      console.log("loading");
-    }
+    console.log("l0ading");
   }
 
   function showJobSelector() {
@@ -20,6 +17,7 @@ $(function () {
         jobSelector
           .append(selectOptions)
           .change(({ currentTarget }) => {
+            $("#tableContainer").hide();
             showSchoolClassSelector(currentTarget.value);
           });
       });
@@ -49,35 +47,57 @@ $(function () {
   }
 
   function showTimetable(schoolClassId, week) {
-    getTimetable(schoolClassId, '07-2020')
+    getTimetable(schoolClassId, week)
       .then((rows) => {
-        const tableBody = $("#tableBody");
+        //i think this is not the right approach 
+        if(rows.length < 1) {
+          $("#noTable").show();
+          const date = getNumberOfWeekAndYear(week);
+          var weekNumber = date[0];
+          var year = date[1];
+        } else {
+          const tableBody = $("#tableBody");
+          const date = getNumberOfWeekAndYear(rows[0].tafel_datum);
 
-        tableBody.empty();
+          const dayNames = [
+            "Sonntag",
+            "Montag",
+            "Dienstag",
+            "Mittwoch",
+            "Donnerstag",
+            "Freitag",
+            "Samstag"
+          ];
 
-        const dayNames = [
-          "Sonntag",
-          "Montag",
-          "Dienstag",
-          "Mittwoch",
-          "Donnerstag",
-          "Freitag",
-          "Samstag"
-        ];
-
-        const tableContent = rows.map((row) =>
+          const tableContent = rows.map((row) =>
           `<tr>
-            <td class="border px-4 py-2">${row.tafel_datum}</td>
-            <td class="border px-4 py-2">${dayNames[row.tafel_wochentag]}</td>
-            <td class="border px-4 py-2">${row.tafel_von}</td>
-            <td class="border px-4 py-2">${row.tafel_bis}</td>
-            <td class="border px-4 py-2">${row.tafel_lehrer}</td>
-            <td class="border px-4 py-2">${row.tafel_longfach}</td>
-            <td class="border px-4 py-2">${row.tafel_raum}</td>
+          <td class="border px-4 py-2">${row.tafel_datum}</td>
+          <td class="border px-4 py-2">${dayNames[row.tafel_wochentag]}</td>
+          <td class="border px-4 py-2">${row.tafel_von}</td>
+          <td class="border px-4 py-2">${row.tafel_bis}</td>
+          <td class="border px-4 py-2">${row.tafel_lehrer}</td>
+          <td class="border px-4 py-2">${row.tafel_longfach}</td>
+          <td class="border px-4 py-2">${row.tafel_raum}</td>
           </tr>`
-        );
+          );
 
-        $(tableBody).append(tableContent);
+          $(tableBody)
+          .empty()
+          .append(tableContent);
+
+          var weekNumber = date[0];
+          var year = date[1];
+        }
+        
+        $('#prevBtn').click(() => {
+          console.log(weekNumber, year)
+          showTimetable(schoolClassId, (weekNumber-1) + "-" + year);
+        });
+
+        $('#nextBtn').click(() => {
+          console.log(weekNumber, year)
+          showTimetable(schoolClassId, (weekNumber+1) + "-" + year);
+        });
 
         $("#tableContainer").show();
       });
@@ -125,6 +145,14 @@ $(function () {
   showJobSelector();
 
 });
+
+
+function getNumberOfWeekAndYear(initalDate = null) {
+  const date = initalDate ? new Date(initalDate) : new Date();
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+  return [Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7), date.getFullYear()];
+}
 
 //wenn handy nicht mehr alle felder anzeigen. und kurzforn von Fach
 // wenn  ich ein job auswähle und dann eine klasse und dann den job wieder
