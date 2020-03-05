@@ -1,14 +1,3 @@
-// const jobs = $("#jobs");
-
-// const courses = $("#courses");
-// const courseContainer = $("#courseContainer");
-
-// const noSchedule = $("#noSchedule");
-// const tableContainer = $("#tableContainer");
-
-// const prevBtn = $("#prevBtn");
-// const nextBtn = $("#nextBtn ");
-
 const jobs = $("#jobs");
 
 const courses = $("#courses");
@@ -21,25 +10,19 @@ const tableBody = $("#tableBody");
 const prevBtn = $("#prevBtn");
 const nextBtn = $("#nextBtn ");
 
+const replaceContent = (element, newContent) => element.empty().append(newContent);
+
+const showElement = (element) => element.show();
+
+const hideElement = (element) => element.hide();
+
 $(function () {
-  const showCourseContainer = () => {
-        courseContainer.show();
-
-  }
-
-  const showTableContainer = () => {
-    tableContainer.show()
-  }
-
-  const hideTableContainer = () => {
-    tableContainer.hide()
-  }
 
   function showPreloader() {
     console.log("l0ading");
   }
 
-  function showJobSelector() {
+  function showJobs() {
     getJobs()
       .then((data) => {
         const selectOptions = data.map((job) => `
@@ -51,7 +34,7 @@ $(function () {
         jobs
           .append(selectOptions)
           .change(({ currentTarget }) => {
-            hideTableContainer();
+            hideElement(tableContainer);
             showCourses(currentTarget.value);
           });
       });
@@ -60,36 +43,36 @@ $(function () {
   function showCourses(params) {
     getCourses(params)
       .then((data) => {
-        courses
-          .replaceWith('<option value="">Select your class</option>');
+        replaceContent(courses, '<option value="">Select your class</option>');
 
-        const selectOptions = data.map((schoolClass) =>
-          `<option value="${schoolClass.klasse_id}">
-            ${schoolClass.klasse_name}
+        const selectOptions = data.map((course) =>
+          `<option value="${course.klasse_id}">
+            ${course.klasse_name}
           </option>`
         );
-
+        
         courses
           .append(selectOptions)
           .change(({ currentTarget }) => {
             showTimetable(currentTarget.value);
           });
-          showCourseContainer();
+          
+        showElement(courseContainer);
       });
   }
 
   function showTimetable(schoolClassId, week) {
     getTimetable(schoolClassId, week)
       .then((rows) => {
+        console.log("hello")
         //i think this is not the right approach 
         if(rows.length < 1) {
-          noSchedule.show();
+          showElement(noSchedule);
 
           const date = getNumberOfWeekAndYear(week);
           var weekNumber = date[0];
           var year = date[1];
         } else {
-          const tableBody = $("#tableBody");
           const date = getNumberOfWeekAndYear(rows[0].tafel_datum);
 
           const dayNames = [
@@ -114,8 +97,7 @@ $(function () {
           </tr>`
           );
 
-          tableBody
-          .replaceWith(tableContent);
+          replaceContent(tableBody, tableContent);
 
           var weekNumber = date[0];
           var year = date[1];
@@ -174,7 +156,7 @@ $(function () {
   }
 
   showPreloader();
-  showJobSelector();
+  showJobs();
 
 });
 
