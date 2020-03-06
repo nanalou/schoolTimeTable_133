@@ -1,0 +1,27 @@
+{
+  "name": "shooltimetable_133",
+  "version": "1.0.0",
+  "description": "https://sites.google.com/a/gibmit.ch/modul-133-2019-q3-db/home",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "build-css-dev": "postcss css/tailwind.css -o css/output.css",
+    "build-css-prod": "NODE_ENV=production postcss css/tailwind.css -o css/output.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nonameleftforme/shoolTimeTable_133.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nonameleftforme/shoolTimeTable_133/issues"
+  },
+  "homepage": "https://github.com/nonameleftforme/shoolTimeTable_133#readme",
+  "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.1.0",
+    "cssnano": "^4.1.10",
+    "postcss": "^7.0.27",
+    "postcss-cli": "^7.1.0",
+    "tailwindcss": "^1.2.0"
+  }
+}
