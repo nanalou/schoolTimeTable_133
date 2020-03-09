@@ -6,11 +6,12 @@ const courseContainer = $("#courseContainer");
 const tableBody = $("#tableBody");
 const noSchedule = $("#noSchedule");
 const tableContainer = $("#tableContainer");
-const tableElement = $("#tableContainer:first-child");
+const tableElement = $("table:first");
 
 const prevBtn = $("#prevBtn");
 const nextBtn = $("#nextBtn ");
 
+const date = createWeekCalc();
 
 const replaceContent = (element, newContent) => element.empty().append(newContent);
 
@@ -18,15 +19,7 @@ const showElement = (element) => element.show();
 
 const hideElement = (element) => element.hide();
 
-function getNumberOfWeekAndYear(initalDate = null) {
-  const date = initalDate ? new Date(initalDate) : new Date();
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-  return {
-    week : Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7),
-    year : date.getFullYear()
-  };
-}
+
 
 $(function () {
 
@@ -75,6 +68,7 @@ $(function () {
           replaceContent(courses, '<option value="">Select your class</option>');
         } else {
           replaceContent(courses, `<option value="${localStorage.getItem('courseId')}">${localStorage.getItem('courseName')}</option>`);
+          showTimetable(localStorage.getItem('courseId'));
         }
 
         const selectOptions = data.map((course) =>
@@ -98,21 +92,17 @@ $(function () {
       });
   }
 
-  function showTimetable(courseId, week) {
-    getTimetable(courseId, week)
+  function showTimetable(courseId) {
+    getTimetable(courseId)
       .then((rows) => {
-        console.log(rows)
+        hideElement(tableElement);
         //this is not the right approach !
         if(rows.length < 1) {
-          console.log("nop")
           showElement(noSchedule);
 
-          var date = getNumberOfWeekAndYear(week);
         } else {
-
-          console.log("jep")
-          var date = getNumberOfWeekAndYear(rows[0].tafel_datum);
-          console.log(date)
+          hideElement(noSchedule);
+          showElement(tableElement);
 
           const dayNames = [
             "Sonntag",
@@ -139,19 +129,7 @@ $(function () {
           replaceContent(tableBody, tableContent);
         }
 
-        var weekNumber = date.week;
-        var year = date.year;
-
         showElement(tableContainer);
-        
-        prevBtn.click(() => {
-          showTimetable(courseId, (weekNumber-1) + "-" + year);
-        });
-
-        nextBtn.click(() => {
-          showTimetable(courseId, (weekNumber+1) + "-" + year);
-        });
-
       });
   }
 
@@ -180,9 +158,9 @@ $(function () {
       });
   }
 
-  function getTimetable(courseId, week) {
+  function getTimetable(courseId) {
     const url = "http://sandbox.gibm.ch/tafel.php";
-    const queryParams = week ? { klasse_id: courseId, woche: week } : { klasse_id: courseId }
+    const queryParams = { klasse_id: courseId, woche: date.getWeekString() }
     return $.getJSON(url, queryParams)
       .done((data) => {
         return data
@@ -196,4 +174,52 @@ $(function () {
   showPreloader();
   showJobs();
 
+  prevBtn.click(() => {
+    date.subtractWeek();
+    showTimetable(window.localStorage.getItem('courseId'));
+  });
+
+  nextBtn.click(() => {
+    date.addWeek();
+    showTimetable(window.localStorage.getItem('courseId'));
+  });
+
 });
+
+
+//autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
+/**
+ * Factory function for createing an object that is capabl of tracking weeks of
+ * the timetable.
+ *
+ * @param {String} initalDate
+ */
+function createWeekCalc(initalDate) {
+  let date = initalDate ? new Date(initalDate) : new Date()
+
+  /**
+   * Private Function for calculating the Week
+   * @param {Date} date
+   */
+  const getNumberOfWeek = (date) => {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1)
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+  }
+
+  return {
+    getWeekString() {
+      const year = date.getFullYear()
+      const week = getNumberOfWeek(date)
+      return `${week}-${year}`
+    },
+    addWeek() {
+      const nextWeek = date.getTime() + 604800000
+      date.setTime(nextWeek)
+    },
+    subtractWeek() {
+      const previousWeek = date.getTime() - 604800000
+      date.setTime(previousWeek)
+    },
+  }
+}
