@@ -10,8 +10,9 @@ const tableElement = $("table:first");
 
 const prevBtn = $("#prevBtn");
 const nextBtn = $("#nextBtn ");
+const datePreview = $("#datePreview");
 
-const date = createWeekCalc();
+const date = createWeekCalculator();
 
 const replaceContent = (element, newContent) => element.empty().append(newContent);
 
@@ -85,6 +86,8 @@ $(function () {
 
             hideElement(tableContainer);
 
+            date.reset();
+
             showTimetable(currentTarget.value);
           });
           
@@ -127,7 +130,11 @@ $(function () {
           );
 
           replaceContent(tableBody, tableContent);
+
         }
+
+        const datePreviewContent = `<p>${date.getWeekAndYear()}</p>`;
+        replaceContent(datePreview, datePreviewContent);
 
         showElement(tableContainer);
       });
@@ -160,7 +167,7 @@ $(function () {
 
   function getTimetable(courseId) {
     const url = "http://sandbox.gibm.ch/tafel.php";
-    const queryParams = { klasse_id: courseId, woche: date.getWeekString() }
+    const queryParams = { klasse_id: courseId, woche: date.getWeekAndYear() }
     return $.getJSON(url, queryParams)
       .done((data) => {
         return data
@@ -189,12 +196,21 @@ $(function () {
 
 //autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
 /**
- * Factory function for createing an object that is capabl of tracking weeks of
- * the timetable.
+ * Factory function for creating an object that is capable of tracking weeks of 
+ * the timetable. It uses a closure to keep the date and the function for 
+ * calculating the week number private. 
+ * 
+ * Usage:
+ *
+ * ```js
+ * const date = createWeekCalculator()
+ * date.addWeek()
+ * date.getWeekAndYear() // '12-2020'
+ * ```
  *
  * @param {String} initalDate
  */
-function createWeekCalc(initalDate) {
+function createWeekCalculator(initalDate) {
   let date = initalDate ? new Date(initalDate) : new Date()
 
   /**
@@ -208,7 +224,7 @@ function createWeekCalc(initalDate) {
   }
 
   return {
-    getWeekString() {
+    getWeekAndYear() {
       const year = date.getFullYear()
       const week = getNumberOfWeek(date)
       return `${week}-${year}`
@@ -221,5 +237,8 @@ function createWeekCalc(initalDate) {
       const previousWeek = date.getTime() - 604800000
       date.setTime(previousWeek)
     },
+    reset() {
+      date = new Date()
+    }
   }
 }
