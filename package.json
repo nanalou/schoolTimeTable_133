@@ -23,5 +23,8 @@
     "postcss": "^7.0.27",
     "postcss-cli": "^7.1.0",
     "tailwindcss": "^1.2.0"
+  },
+  "devDependencies": {
+    "tailwindcss-spinner": "^1.0.0"
   }
 }
