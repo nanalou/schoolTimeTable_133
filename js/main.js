@@ -21,9 +21,6 @@ const showElement = (element) => element.show();
 const hideElement = (element) => element.hide();
 
 const fadeInElement = (element) => element.fadeIn();
-const fadeOutElement = (element) => element.fadeOut();
-
-
 
 $(function () {
 
@@ -35,7 +32,7 @@ $(function () {
     getJobs()
       .then((data) => {
         if (localStorage.getItem('jobId') === null) {
-          replaceContent(jobs, '<option value="">Select your class</option>');
+          replaceContent(jobs, '<option value="">Select your job</option>');
         } else {
           replaceContent(jobs, `<option value="${localStorage.getItem('jobId')}">${localStorage.getItem('jobName')}</option>`);
           showCourses(localStorage.getItem('jobId'));
@@ -49,21 +46,23 @@ $(function () {
 
         jobs
           .append(selectOptions)
-          .change(({ currentTarget }) => {
-            window.localStorage.setItem('jobId', currentTarget.value);
-            window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
-
-            if (window.localStorage.getItem('courseId') !== null) {
-              window.localStorage.removeItem('courseId') 
-              window.localStorage.removeItem('courseName') 
-            }
-
-            hideElement(tableContainer);
-
-            showCourses(currentTarget.value);
-          });
       });
   }
+
+  jobs
+    .change(({ currentTarget }) => {
+      window.localStorage.setItem('jobId', currentTarget.value);
+      window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
+
+      if (window.localStorage.getItem('courseId') !== null) {
+        window.localStorage.removeItem('courseId') 
+        window.localStorage.removeItem('courseName') 
+      }
+
+      hideElement(tableContainer);
+
+      showCourses(currentTarget.value);
+    });
 
   function showCourses(params) {
     getCourses(params)
@@ -81,25 +80,25 @@ $(function () {
           </option>`
         );
         
-        courses
-          .append(selectOptions)
-          .change(({ currentTarget }) => {
-            window.localStorage.setItem('courseId', currentTarget.value);
-            window.localStorage.setItem('courseName', currentTarget.selectedOptions[0].innerText)
-
-            date.reset();
-
-            showTimetable(currentTarget.value);
-          });
+        courses.append(selectOptions)
           
         showElement(courseContainer);
       });
   }
 
+  courses
+    .change(({ currentTarget }) => {
+      window.localStorage.setItem('courseId', currentTarget.value);
+      window.localStorage.setItem('courseName', currentTarget.selectedOptions[0].innerText)
+
+      date.reset();
+
+      showTimetable(currentTarget.value);
+    });
+
   function showTimetable(courseId) {
     getTimetable(courseId)
       .then((rows) => {
-        // hideElement(tableElement);
         hideElement(tableContainer)
         //this is not the right approach !
         if(rows.length < 1) {
@@ -138,8 +137,6 @@ $(function () {
 
         const datePreviewContent = `<p>${date.getWeekAndYear()}</p>`;
         replaceContent(datePreview, datePreviewContent);
-
-        // showElement(tableContainer);
 
         console.log("tableContainer")
         fadeInElement(tableContainer);
