@@ -20,6 +20,9 @@ const showElement = (element) => element.show();
 
 const hideElement = (element) => element.hide();
 
+const fadeInElement = (element) => element.fadeIn();
+const fadeOutElement = (element) => element.fadeOut();
+
 
 
 $(function () {
@@ -84,8 +87,6 @@ $(function () {
             window.localStorage.setItem('courseId', currentTarget.value);
             window.localStorage.setItem('courseName', currentTarget.selectedOptions[0].innerText)
 
-            hideElement(tableContainer);
-
             date.reset();
 
             showTimetable(currentTarget.value);
@@ -98,9 +99,11 @@ $(function () {
   function showTimetable(courseId) {
     getTimetable(courseId)
       .then((rows) => {
-        hideElement(tableElement);
+        // hideElement(tableElement);
+        hideElement(tableContainer)
         //this is not the right approach !
         if(rows.length < 1) {
+          hideElement(tableElement);
           showElement(noSchedule);
 
         } else {
@@ -136,9 +139,22 @@ $(function () {
         const datePreviewContent = `<p>${date.getWeekAndYear()}</p>`;
         replaceContent(datePreview, datePreviewContent);
 
-        showElement(tableContainer);
+        // showElement(tableContainer);
+
+        console.log("tableContainer")
+        fadeInElement(tableContainer);
       });
   }
+
+  prevBtn.click(() => {
+    date.subtractWeek();
+    showTimetable(window.localStorage.getItem('courseId'));
+  });
+
+  nextBtn.click(() => {
+    date.addWeek();
+    showTimetable(window.localStorage.getItem('courseId'));
+  });
 
   function getJobs() {
     const url = "http://sandbox.gibm.ch/berufe.php"
@@ -180,17 +196,6 @@ $(function () {
 
   showPreloader();
   showJobs();
-
-  prevBtn.click(() => {
-    date.subtractWeek();
-    showTimetable(window.localStorage.getItem('courseId'));
-  });
-
-  nextBtn.click(() => {
-    date.addWeek();
-    showTimetable(window.localStorage.getItem('courseId'));
-  });
-
 });
 
 
