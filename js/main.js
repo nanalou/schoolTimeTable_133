@@ -1,3 +1,5 @@
+var elementLoaded = false;
+
 const jobs = $("#jobs");
 
 const courses = $("#courses");
@@ -12,7 +14,12 @@ const prevBtn = $("#prevBtn");
 const nextBtn = $("#nextBtn ");
 const datePreview = $("#datePreview");
 
+const spinner = $("#spinner");
+const body = $("#body");
+
 const date = createWeekCalculator();
+
+const timetablePreferences = getUserPreferences();
 
 const replaceContent = (element, newContent) => element.empty().append(newContent);
 
@@ -22,20 +29,17 @@ const hideElement = (element) => element.hide();
 
 const fadeInElement = (element) => element.fadeIn();
 
+
 $(function () {
-
-  function showPreloader() {
-    console.log("l0ading");
-  }
-
   function showJobs() {
+    showSpinner();
     getJobs()
       .then((data) => {
-        if (localStorage.getItem('jobId') === null) {
+        if (timetablePreferences.jobId === null) {
           replaceContent(jobs, '<option value="">Select your job</option>');
         } else {
-          replaceContent(jobs, `<option value="${localStorage.getItem('jobId')}">${localStorage.getItem('jobName')}</option>`);
-          showCourses(localStorage.getItem('jobId'));
+          replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
+          showCourses(timetablePreferences.jobId);
         }
 
         const selectOptions = data.map((job) => `
@@ -46,6 +50,8 @@ $(function () {
 
         jobs
           .append(selectOptions)
+        
+        showBody();
       });
   }
 
@@ -54,7 +60,7 @@ $(function () {
       window.localStorage.setItem('jobId', currentTarget.value);
       window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
 
-      if (window.localStorage.getItem('courseId') !== null) {
+      if (timetablePreferences.courseId !== null) {
         window.localStorage.removeItem('courseId') 
         window.localStorage.removeItem('courseName') 
       }
@@ -65,13 +71,14 @@ $(function () {
     });
 
   function showCourses(params) {
+    showSpinner();
     getCourses(params)
       .then((data) => {
-        if (window.localStorage.getItem('courseId') === null) {
+        if (timetablePreferences.courseId === null) {
           replaceContent(courses, '<option value="">Select your class</option>');
         } else {
-          replaceContent(courses, `<option value="${localStorage.getItem('courseId')}">${localStorage.getItem('courseName')}</option>`);
-          showTimetable(localStorage.getItem('courseId'));
+          replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
+          showTimetable(timetablePreferences.courseId);
         }
 
         const selectOptions = data.map((course) =>
@@ -83,6 +90,7 @@ $(function () {
         courses.append(selectOptions)
           
         showElement(courseContainer);
+        showBody();
       });
   }
 
@@ -97,6 +105,7 @@ $(function () {
     });
 
   function showTimetable(courseId) {
+    showSpinner();
     getTimetable(courseId)
       .then((rows) => {
         hideElement(tableContainer)
@@ -121,36 +130,35 @@ $(function () {
 
           const tableContent = rows.map((row) =>
           `<tr>
-          <td class="border px-4 py-2">${row.tafel_datum}</td>
-          <td class="border px-4 py-2">${dayNames[row.tafel_wochentag]}</td>
-          <td class="border px-4 py-2">${row.tafel_von}</td>
-          <td class="border px-4 py-2">${row.tafel_bis}</td>
-          <td class="border px-4 py-2">${row.tafel_lehrer}</td>
-          <td class="border px-4 py-2">${row.tafel_longfach}</td>
-          <td class="border px-4 py-2">${row.tafel_raum}</td>
+          ${cell(row.tafel_datum)}
+          ${cell(dayNames[row.tafel_wochentag])}
+          ${cell(row.tafel_von)}
+          ${cell(row.tafel_bis)}
+          ${cell(row.tafel_lehrer)}
+          ${cell(row.tafel_longfach)}
+          ${cell(row.tafel_raum)}
           </tr>`
           );
 
           replaceContent(tableBody, tableContent);
-
         }
 
         const datePreviewContent = `<p>${date.getWeekAndYear()}</p>`;
         replaceContent(datePreview, datePreviewContent);
 
-        console.log("tableContainer")
+        showBody();
         fadeInElement(tableContainer);
       });
   }
 
   prevBtn.click(() => {
     date.subtractWeek();
-    showTimetable(window.localStorage.getItem('courseId'));
+    showTimetable(timetablePreferences.courseId);
   });
 
   nextBtn.click(() => {
     date.addWeek();
-    showTimetable(window.localStorage.getItem('courseId'));
+    showTimetable(timetablePreferences.courseId);
   });
 
   function getJobs() {
@@ -191,10 +199,31 @@ $(function () {
       });
   }
 
-  showPreloader();
   showJobs();
 });
 
+function cell(content) {
+  return `<td class="border px-4 py-2">${content}</td>`
+}
+
+function showBody() {
+  hideElement(spinner)
+  showElement(body)
+}
+
+function showSpinner() {
+  hideElement(body)
+  showElement(spinner)
+}
+
+function getUserPreferences() {
+  return {
+  jobId : window.localStorage.getItem("jobId"),
+  jobName : window.localStorage.getItem("jobName"),
+  courseId : window.localStorage.getItem("courseId"),
+  courseName : window.localStorage.getItem("courseName"),
+  }
+};
 
 //autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
 /**
@@ -245,3 +274,7 @@ function createWeekCalculator(initalDate) {
   }
 }
 
+//error alert
+//* loader before page loaded 
+//localstorage get value funktion
+// after reload the scrol bar back to the beginning
