@@ -8,86 +8,93 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
-<body class="bg-scroll" style="background-image: url('img/NO-FUCKING-FUTURE.jpeg')">
-    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white m-8">
-        <div class="px-6 py-4">
-            <h1 class="font-bold text-3xl">Stundenplan GIBM</h1>
-            <div class="w-full my-6">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="jobs">
-                    Job
-                </label>
-                <div class="relative">
-                    <select
-                        class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                        id="jobs">
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                        </svg>
+<body>
+    <div id="spinner" class="spinner bg-red-300 h-screen"></div>
+    <div id="body" class="bg-scroll"
+        style="background-image: url('img/NO-FUCKING-FUTURE.jpeg') overflow-hidden; display: none;">
+        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white m-8">
+            <div class="px-6 py-4">
+                <h1 class="font-bold text-3xl">Stundenplan GIBM</h1>
+                <div class="w-full my-6">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="jobs">
+                        Job
+                    </label>
+                    <div class="relative">
+                        <select
+                            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                            id="jobs">
+                            <option>Select your job</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-full my-6" id="courseContainer" style="display: none;">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="courses">
-                    Class
-                </label>
-                <div class="relative">
-                    <select
-                        class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                        id="courses">
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="tableContainer" class="max-w-4xl rounded overflow-hidden relative shadow-lg bg-white m-8"
-        style="display: none">
-
-        <div class="overflow-x-auto m-4 p-2">
-            <table class="table-fixed">
-                <thead>
-                    <tr>
-                        <th class="w-1/7 px-4 py-2">Datum</th>
-                        <th class="w-1/7 px-4 py-2">Wochentag</th>
-                        <th class="w-1/7 px-4 py-2">Von</th>
-                        <th class="w-1/7 px-4 py-2">Bis</th>
-                        <th class="w-1/7 px-4 py-2">Lehrer</th>
-                        <th class="w-1/7 px-4 py-2">Fach</th>
-                        <th class="w-1/7 px-4 py-2">Raum</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                </tbody>
-            </table>
-            <div id="noSchedule"
-                class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md m-6">
-                <div class="container justify-center inline-flex">
-                    <div class=""><svg class="fill-current h-6 w-6 text-teal-500 mr-4"
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path
-                                d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
-                        </svg></div>
-                    <div>
-                        <p class="font-bold">There is no schedule this week.</p>
+                <div class="w-full my-6" id="courseContainer" style="display: none;">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="courses">
+                        Class
+                    </label>
+                    <div class="relative">
+                        <select
+                            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                            id="courses">
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container justify-center inline-flex mb-6">
-            <button id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
-                Prev
-            </button>
-            <div class="m-2" id="datePreview"></div>
-            <button id="nextBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
-                Next
-            </button>
+
+        <div id="tableContainer" class="max-w-4xl rounded overflow-hidden relative shadow-lg bg-white m-8"
+            style="display: none">
+
+            <div class="overflow-x-auto m-4 p-2">
+                <table class="table-fixed">
+                    <thead>
+                        <tr>
+                            <th class="w-1/7 px-4 py-2">Datum</th>
+                            <th class="w-1/7 px-4 py-2">Wochentag</th>
+                            <th class="w-1/7 px-4 py-2">Von</th>
+                            <th class="w-1/7 px-4 py-2">Bis</th>
+                            <th class="w-1/7 px-4 py-2">Lehrer</th>
+                            <th class="w-1/7 px-4 py-2">Fach</th>
+                            <th class="w-1/7 px-4 py-2">Raum</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+                <div id="noSchedule"
+                    class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md m-6">
+                    <div class="container justify-center inline-flex">
+                        <div class=""><svg class="fill-current h-6 w-6 text-teal-500 mr-4"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path
+                                    d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                            </svg></div>
+                        <div>
+                            <p class="font-bold">There is no schedule this week.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container justify-center inline-flex mb-6">
+                <button id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                    Prev
+                </button>
+                <div class="m-2" id="datePreview"></div>
+                <button id="nextBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
+                    Next
+                </button>
+            </div>
         </div>
     </div>
     <script src="js/main.js"></script>
