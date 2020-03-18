@@ -13,7 +13,7 @@ const nextBtn = $("#nextBtn");
 const datePreview = $("#datePreview");
 
 const spinner = $("#spinner");
-const bodyDiv = $("#app");
+const appDiv = $("#app");
 
 const errorAlertContainer = $("#errorAlertContainer");
 const errorAlertMessage = $("#errorAlertMessage");
@@ -39,11 +39,11 @@ $(function () {
     showSpinner();
     getJobs()
       .then((data) => {
-        if (timetablePreferences.jobId === null) {
+        if (timetablePreferences.jobId() === null) {
           replaceContent(jobs, '<option value="">Select your job</option>');
         } else {
-          replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
-          showCourses(timetablePreferences.jobId);
+          replaceContent(jobs, `<option value="${timetablePreferences.jobId()}">${timetablePreferences.jobName()}</option>`);
+          showCourses(timetablePreferences.jobId());
         }
 
         const selectOptions = data.map((job) => `
@@ -61,10 +61,9 @@ $(function () {
 
   jobs
     .change(({ currentTarget }) => {
-      window.localStorage.clear()
+      window.localStorage.clear();
       window.localStorage.setItem('jobId', currentTarget.value);
       window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
-
 
       hideElement(tableContainer);
 
@@ -75,11 +74,11 @@ $(function () {
     showSpinner();
     getCourses(params)
       .then((data) => {
-        if (timetablePreferences.courseId === null) {
+        if (timetablePreferences.courseId() === null) {
           replaceContent(courses, '<option value="">Select your class</option>');
         } else {
-          replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
-          showTimetable(timetablePreferences.courseId);
+          replaceContent(courses, `<option value="${timetablePreferences.courseId()}">${timetablePreferences.courseName()}</option>`);
+          showTimetable(timetablePreferences.courseId());
         }
 
         const selectOptions = data.map((course) =>
@@ -110,7 +109,6 @@ $(function () {
     getTimetable(courseId)
       .then((rows) => {
         hideElement(tableContainer)
-        //this is not the right approach !
         if(rows.length < 1) {
           hideElement(tableElement);
           showElement(noSchedule);
@@ -154,14 +152,12 @@ $(function () {
 
   prevBtn.click(() => {
     date.subtractWeek();
-    // console.table(timetablePreferences)
-    showTimetable(timetablePreferences.courseId);
+    showTimetable(timetablePreferences.courseId());
   });
 
   nextBtn.click(() => {
     date.addWeek();
-    // console.table(timetablePreferences)
-    showTimetable(timetablePreferences.courseId);
+    showTimetable(timetablePreferences.courseId());
   });
 
   function getJobs() {
@@ -218,20 +214,20 @@ function errorAlert(message) {
 
 function showBody() {
   hideElement(spinner)
-  showElement(bodyDiv)
+  showElement(appDiv)
 }
 
 function showSpinner() {
-  hideElement(bodyDiv)
+  hideElement(appDiv)
   showElement(spinner)
 }
 
 function getUserPreferences() {
   return {
-  jobId : window.localStorage.getItem("jobId"),
-  jobName : window.localStorage.getItem("jobName"),
-  courseId : window.localStorage.getItem("courseId"),
-  courseName : window.localStorage.getItem("courseName"),
+  jobId : () =>  window.localStorage.getItem("jobId"),
+  jobName : () => window.localStorage.getItem("jobName"),
+  courseId : () =>  window.localStorage.getItem("courseId"),
+  courseName : () =>  window.localStorage.getItem("courseName"),
   }
 };
 
