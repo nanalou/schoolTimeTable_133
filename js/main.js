@@ -39,11 +39,11 @@ $(function () {
     showSpinner();
     getJobs()
       .then((data) => {
-        if (timetablePreferences.jobId() === null) {
+        if (timetablePreferences.jobId === null) {
           replaceContent(jobs, '<option value="">Select your job</option>');
         } else {
-          replaceContent(jobs, `<option value="${timetablePreferences.jobId()}">${timetablePreferences.jobName()}</option>`);
-          showCourses(timetablePreferences.jobId());
+          replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
+          showCourses(timetablePreferences.jobId);
         }
 
         const selectOptions = data.map((job) => `
@@ -62,8 +62,8 @@ $(function () {
   jobs
     .change(({ currentTarget }) => {
       window.localStorage.clear();
-      window.localStorage.setItem('jobId', currentTarget.value);
-      window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
+      timetablePreferences.jobId = currentTarget.value;
+      timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
 
       hideElement(tableContainer);
 
@@ -74,11 +74,11 @@ $(function () {
     showSpinner();
     getCourses(params)
       .then((data) => {
-        if (timetablePreferences.courseId() === null) {
+        if (timetablePreferences.courseId === null) {
           replaceContent(courses, '<option value="">Select your class</option>');
         } else {
-          replaceContent(courses, `<option value="${timetablePreferences.courseId()}">${timetablePreferences.courseName()}</option>`);
-          showTimetable(timetablePreferences.courseId());
+          replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
+          showTimetable(timetablePreferences.courseId);
         }
 
         const selectOptions = data.map((course) =>
@@ -96,8 +96,8 @@ $(function () {
 
   courses
     .change(({ currentTarget }) => {
-      window.localStorage.setItem('courseId', currentTarget.value);
-      window.localStorage.setItem('courseName', currentTarget.selectedOptions[0].innerText)
+      timetablePreferences.courseId = currentTarget.value;
+      timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
 
       date.reset();
 
@@ -152,12 +152,12 @@ $(function () {
 
   prevBtn.click(() => {
     date.subtractWeek();
-    showTimetable(timetablePreferences.courseId());
+    showTimetable(timetablePreferences.courseId);
   });
 
   nextBtn.click(() => {
     date.addWeek();
-    showTimetable(timetablePreferences.courseId());
+    showTimetable(timetablePreferences.courseId);
   });
 
   function getJobs() {
@@ -223,13 +223,24 @@ function showSpinner() {
 }
 
 function getUserPreferences() {
-  return {
-  jobId : () =>  window.localStorage.getItem("jobId"),
-  jobName : () => window.localStorage.getItem("jobName"),
-  courseId : () =>  window.localStorage.getItem("courseId"),
-  courseName : () =>  window.localStorage.getItem("courseName"),
+  const target = {
+    jobId : null,
+    jobName : null,
+    courseId : null,
+    courseName : null,
   }
+
+  const handler = {
+    get: (obj, prop) => {
+      return prop in obj ? window.localStorage.getItem(prop) : null;
+    },
+    set: (obj, prop, value) => {
+      return prop in obj ? window.localStorage.setItem(prop, value) : null;
+    }
+  }
+  return new Proxy(target, handler)
 };
+
 
 //autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
 /**
@@ -296,8 +307,4 @@ function createWeekCalculator(initalDate) {
     }
   }
 }
-//*error alert
-//* loader before page loaded 
-//*localstorage get value funktion
-// after reload the scrol bar back to the beginning
-//*style loader
+// after reload the scroll bar back to the beginning
