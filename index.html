@@ -8,10 +8,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
-<body>
-    <div id="spinner" class="spinner bg-red-300 h-screen"></div>
-    <div id="body" class="bg-scroll"
-        style="background-image: url('img/NO-FUCKING-FUTURE.jpeg') overflow-hidden; display: none;">
+<body class="bg-indigo-100">
+    <div role="alert" id="errorAlertContainer" class="max-w-sm mt-8 m-auto" style="display: none;">
+        <div id="errorAlertMessage" class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+        </div>
+        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p>please reload the page</p>
+        </div>
+    </div>
+    <div id="spinner" class="spinner bg-indigo-100 h-screen"></div>
+    <div id="app">
         <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white m-8">
             <div class="px-6 py-4">
                 <h1 class="font-bold text-3xl">Stundenplan GIBM</h1>
@@ -23,7 +29,6 @@
                         <select
                             class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="jobs">
-                            <option>Select your job</option>
                         </select>
                         <div
                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">

@@ -1,5 +1,3 @@
-var elementLoaded = false;
-
 const jobs = $("#jobs");
 
 const courses = $("#courses");
@@ -11,11 +9,15 @@ const tableContainer = $("#tableContainer");
 const tableElement = $("table:first");
 
 const prevBtn = $("#prevBtn");
-const nextBtn = $("#nextBtn ");
+const nextBtn = $("#nextBtn");
 const datePreview = $("#datePreview");
 
 const spinner = $("#spinner");
-const body = $("#body");
+const bodyDiv = $("#app");
+
+const errorAlertContainer = $("#errorAlertContainer");
+const errorAlertMessage = $("#errorAlertMessage");
+
 
 const date = createWeekCalculator();
 
@@ -28,6 +30,8 @@ const showElement = (element) => element.show();
 const hideElement = (element) => element.hide();
 
 const fadeInElement = (element) => element.fadeIn();
+
+const fadeOutElement = (element) => element.fadeOut();
 
 
 $(function () {
@@ -57,13 +61,10 @@ $(function () {
 
   jobs
     .change(({ currentTarget }) => {
+      window.localStorage.clear()
       window.localStorage.setItem('jobId', currentTarget.value);
       window.localStorage.setItem('jobName', currentTarget.selectedOptions[0].innerText)
 
-      if (timetablePreferences.courseId !== null) {
-        window.localStorage.removeItem('courseId') 
-        window.localStorage.removeItem('courseName') 
-      }
 
       hideElement(tableContainer);
 
@@ -143,7 +144,7 @@ $(function () {
           replaceContent(tableBody, tableContent);
         }
 
-        const datePreviewContent = `<p>${date.getWeekAndYear()}</p>`;
+        const datePreviewContent = `<p>${date.getWeekString()}</p>`;
         replaceContent(datePreview, datePreviewContent);
 
         showBody();
@@ -153,11 +154,13 @@ $(function () {
 
   prevBtn.click(() => {
     date.subtractWeek();
+    // console.table(timetablePreferences)
     showTimetable(timetablePreferences.courseId);
   });
 
   nextBtn.click(() => {
     date.addWeek();
+    // console.table(timetablePreferences)
     showTimetable(timetablePreferences.courseId);
   });
 
@@ -168,7 +171,7 @@ $(function () {
         return data
       })
       .fail(() => {
-        console.log("job Server Error");
+        errorAlert("job Server Error");
         return []
       });
   }
@@ -181,20 +184,20 @@ $(function () {
         return data
       })
       .fail(() => {
-        console.log("classes Server Error");
+        errorAlert("classes Server Error");
         return []
       });
   }
 
   function getTimetable(courseId) {
     const url = "http://sandbox.gibm.ch/tafel.php";
-    const queryParams = { klasse_id: courseId, woche: date.getWeekAndYear() }
+    const queryParams = { klasse_id: courseId, woche: date.getWeekString() }
     return $.getJSON(url, queryParams)
       .done((data) => {
         return data
       })
       .fail(() => {
-        console.log("classes Server Error");
+        errorAlert("Timetable Server Error");
         return []
       });
   }
@@ -206,13 +209,20 @@ function cell(content) {
   return `<td class="border px-4 py-2">${content}</td>`
 }
 
+function errorAlert(message) {
+  hideElement(spinner)
+  window.localStorage.clear()
+  errorAlertMessage.text(message)
+  showElement(errorAlertContainer)
+}
+
 function showBody() {
   hideElement(spinner)
-  showElement(body)
+  showElement(bodyDiv)
 }
 
 function showSpinner() {
-  hideElement(body)
+  hideElement(bodyDiv)
   showElement(spinner)
 }
 
@@ -227,9 +237,11 @@ function getUserPreferences() {
 
 //autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
 /**
- * Factory function for creating an object that is capable of tracking weeks of 
- * the timetable. It uses a closure to keep the date and the function for 
- * calculating the week number private. 
+ * Factory function for creating an object that is capable of generating the
+ * week string needed for the gibm timetable API. You can add and subtract 
+ * a week or reset the Date to the current week. To get week string use
+ * the `_getWeekAndYearString()` function. The object uses a closure 
+ * to keep the date object private to prevent unintended changes. 
  * 
  * Usage:
  *
@@ -243,29 +255,44 @@ function getUserPreferences() {
  */
 function createWeekCalculator(initalDate) {
   let date = initalDate ? new Date(initalDate) : new Date()
+  const WEEK = 604800000
+  const DAY = 86400000
 
   /**
    * Private Function for calculating the Week
    * @param {Date} date
    */
-  const getNumberOfWeek = (date) => {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1)
-    const pastDaysOfYear = (date - firstDayOfYear) / 86400000
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+  const _getWeekAndYearString = (date) => {
+    // Temporary date to prevent mutation
+    const tempDate = new Date(date.valueOf())
+    tempDate.setHours(0, 0, 0)
+    // Set to the nearest Thursday (current date + 4 - current day number)
+    tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7))
+    // Get first day of year
+    const yearStart = new Date(tempDate.getFullYear(), 0, 1)
+    // Calculate full weeks to nearest Thursday
+    const weekNumber = Math.ceil((((tempDate - yearStart) / DAY) + 1) / 7)
+    // Return ISO week number and Year
+    return `${weekNumber}-${yearStart.getFullYear()}`
   }
 
+  const getThursday = () => {
+    const tempDate = new Date(date.valueOf())
+    tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7))
+    return new Date(tempDate.valueOf()).getTime()
+  }
+
+
   return {
-    getWeekAndYear() {
-      const year = date.getFullYear()
-      const week = getNumberOfWeek(date)
-      return `${week}-${year}`
+    getWeekString() {
+      return _getWeekAndYearString(date)
     },
     addWeek() {
-      const nextWeek = date.getTime() + 604800000
+      const nextWeek = date.getTime() + WEEK
       date.setTime(nextWeek)
     },
     subtractWeek() {
-      const previousWeek = date.getTime() - 604800000
+      const previousWeek = date.getTime() - WEEK
       date.setTime(previousWeek)
     },
     reset() {
@@ -273,8 +300,8 @@ function createWeekCalculator(initalDate) {
     }
   }
 }
-
-//error alert
+//*error alert
 //* loader before page loaded 
-//localstorage get value funktion
+//*localstorage get value funktion
 // after reload the scrol bar back to the beginning
+//*style loader
