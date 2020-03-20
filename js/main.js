@@ -5,18 +5,18 @@ const courseContainer = $("#courseContainer");
 
 const tableBody = $("#tableBody");
 const noSchedule = $("#noSchedule");
-const tableContainer = $("#tableContainer");
 const tableElement = $("table:first");
+const tableContainer = $("#tableContainer");
 
 const prevBtn = $("#prevBtn");
 const nextBtn = $("#nextBtn");
 const datePreview = $("#datePreview");
 
+const app = $("#app");
 const spinner = $("#spinner");
-const appDiv = $("#app");
 
-const errorAlertContainer = $("#errorAlertContainer");
 const errorAlertMessage = $("#errorAlertMessage");
+const errorAlertContainer = $("#errorAlertContainer");
 
 
 const date = createWeekCalculator();
@@ -62,16 +62,20 @@ $(function () {
   jobs
     .change(({ currentTarget }) => {
       window.localStorage.clear();
-      timetablePreferences.jobId = currentTarget.value;
-      timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
-
       hideElement(tableContainer);
 
-      showCourses(currentTarget.value);
+      if (currentTarget.value == "") {
+        hideElement(courseContainer)
+      } else {
+        timetablePreferences.jobId = currentTarget.value;
+        timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
+        showCourses(currentTarget.value);
+      }
+
+
     });
 
   function showCourses(params) {
-    showSpinner();
     getCourses(params)
       .then((data) => {
         if (timetablePreferences.courseId === null) {
@@ -96,16 +100,21 @@ $(function () {
 
   courses
     .change(({ currentTarget }) => {
-      timetablePreferences.courseId = currentTarget.value;
-      timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
+      if (currentTarget.value == "") {
+        window.localStorage.removeItem("courseId")
+        window.localStorage.removeItem("courseName")
+        hideElement(tableContainer)
+      } else {
+        timetablePreferences.courseId = currentTarget.value;
+        timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
 
-      date.reset();
+        date.reset();
 
-      showTimetable(currentTarget.value);
+        showTimetable(currentTarget.value);
+      }
     });
 
   function showTimetable(courseId) {
-    showSpinner();
     getTimetable(courseId)
       .then((rows) => {
         hideElement(tableContainer)
@@ -207,6 +216,7 @@ function cell(content) {
 
 function errorAlert(message) {
   hideElement(spinner)
+  hideElement(app)
   window.localStorage.clear()
   errorAlertMessage.text(message)
   showElement(errorAlertContainer)
@@ -214,15 +224,19 @@ function errorAlert(message) {
 
 function showBody() {
   hideElement(spinner)
-  showElement(appDiv)
+  showElement(app)
 }
 
 function showSpinner() {
-  hideElement(appDiv)
+  hideElement(app)
   showElement(spinner)
 }
 
+/*
+* JS Proxy -> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy#Validation
+*/
 function getUserPreferences() {
+  //I have an Object where i have all the targets which are available
   const target = {
     jobId : null,
     jobName : null,
@@ -230,8 +244,13 @@ function getUserPreferences() {
     courseName : null,
   }
 
+  // in the handler obj i "prepare" different functions / actions / returns 
+  //which I later can choose from
+  //timetable.jobId = 4
+  //object.property = value
   const handler = {
     get: (obj, prop) => {
+      // it checks if the requested property exists in the given obj
       return prop in obj ? window.localStorage.getItem(prop) : null;
     },
     set: (obj, prop, value) => {
@@ -308,3 +327,4 @@ function createWeekCalculator(initalDate) {
   }
 }
 // after reload the scroll bar back to the beginning
+// spinner only on specific places
