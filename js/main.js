@@ -29,9 +29,7 @@ const showElement = (element) => element.show();
 
 const hideElement = (element) => element.hide();
 
-const fadeInElement = (element) => element.fadeIn();
-
-const fadeOutElement = (element) => element.fadeOut();
+const fadeInElement = (element) => element.fadeIn(1000);
 
 
 $(function () {
@@ -40,7 +38,7 @@ $(function () {
     getJobs()
       .then((data) => {
         if (timetablePreferences.jobId === null) {
-          replaceContent(jobs, '<option value="">Select your job</option>');
+          replaceContent(jobs, '<option value="" disabled selected>Select your job</option>');
         } else {
           replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
           showCourses(timetablePreferences.jobId);
@@ -78,8 +76,9 @@ $(function () {
   function showCourses(params) {
     getCourses(params)
       .then((data) => {
+        hideElement(courseContainer)
         if (timetablePreferences.courseId === null) {
-          replaceContent(courses, '<option value="">Select your class</option>');
+          replaceContent(courses, '<option value="" disabled selected>Select your class</option>');
         } else {
           replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
           showTimetable(timetablePreferences.courseId);
@@ -93,25 +92,20 @@ $(function () {
         
         courses.append(selectOptions)
           
-        showElement(courseContainer);
+        fadeInElement(courseContainer);
+        // showElement(courseContainer);
         showBody();
       });
   }
 
   courses
     .change(({ currentTarget }) => {
-      if (currentTarget.value == "") {
-        window.localStorage.removeItem("courseId")
-        window.localStorage.removeItem("courseName")
-        hideElement(tableContainer)
-      } else {
         timetablePreferences.courseId = currentTarget.value;
         timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
 
         date.reset();
 
         showTimetable(currentTarget.value);
-      }
     });
 
   function showTimetable(courseId) {
@@ -236,28 +230,33 @@ function showSpinner() {
 * JS Proxy -> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy#Validation
 */
 function getUserPreferences() {
-  //I have an Object where i have all the targets which are available
-  const target = {
-    jobId : null,
-    jobName : null,
-    courseId : null,
-    courseName : null,
-  }
+  // Array of all possible Keys, that the user is allowed to access
+  const possibleKeys = [ 
+    'jobId',
+    'jobName',
+    'courseId',
+    'courseName',
+  ]
 
-  // in the handler obj i "prepare" different functions / actions / returns 
-  //which I later can choose from
-  //timetable.jobId = 4
-  //object.property = value
+  /* 
+  * in the handler obj i "prepare" different functions / actions / returns 
+  * the handler intercepts the set, get action
+  */
   const handler = {
     get: (obj, prop) => {
-      // it checks if the requested property exists in the given obj
-      return prop in obj ? window.localStorage.getItem(prop) : null;
+      // it checks if the requested property exists in the array (possibleKeys)
+      // if true it returns the value of the localStorage otherwise it returns null
+      return possibleKeys.includes(prop) ? window.localStorage.getItem(prop) : null;
     },
     set: (obj, prop, value) => {
-      return prop in obj ? window.localStorage.setItem(prop, value) : null;
-    }
+      if(prop === 'jobId') {
+        window.localStorage.removeItem('courseId')
+        window.localStorage.removeItem('courseName')
+      }
+      possibleKeys.includes(prop) ? window.localStorage.setItem(prop, value) : null;
+    },
   }
-  return new Proxy(target, handler)
+  return new Proxy({}, handler)
 };
 
 
@@ -326,5 +325,4 @@ function createWeekCalculator(initalDate) {
     }
   }
 }
-// after reload the scroll bar back to the beginning
-// spinner only on specific places
+
