@@ -23,12 +23,33 @@ const date = createWeekCalculator();
 
 const timetablePreferences = getUserPreferences();
 
+/**
+ * Replaces all the children of the element with the new content
+ * 
+ * @param {Object} element 
+ * @param {String} newContent 
+ */
 const replaceContent = (element, newContent) => element.empty().append(newContent);
 
+/**
+ * Shows the element
+ * 
+ * @param {Object} element 
+ */
 const showElement = (element) => element.show();
 
+/**
+ * Hides the element
+ * 
+ * @param {Object} element 
+ */
 const hideElement = (element) => element.hide();
 
+/**
+ * Shows the element with a fade-in animation
+ * 
+ * @param {Object} element 
+ */
 const fadeInElement = (element) => element.fadeIn(1000);
 
 
@@ -69,8 +90,10 @@ $(function () {
   });
 });
 
+
 /**
  * Returns an array of options strings
+ * 
  * @param {Array} data
  * @param {Array} keys [id, name]
  */
@@ -83,10 +106,21 @@ function createOptions(data, keys) {
   );
 }
 
+/**
+ * Returns an html-table-cell string
+ *  
+ * @param {String} content 
+ */
 function cell(content) {
   return `<td class="border px-4 py-2">${content}</td>`;
 }
 
+/**
+ * Shows the error-alert-element and hides all the other elements
+ * Deletes all the localStorage attributes 
+ * 
+ * @param {String} message
+ */
 function errorAlert(message) {
   hideElement(spinner);
   hideElement(app);
@@ -95,19 +129,26 @@ function errorAlert(message) {
   showElement(errorAlertContainer);
 }
 
+/**
+ * Shows the body-element and hides all the other elements
+ */
 function showBody() {
   hideElement(spinner);
   showElement(app);
 }
 
+/**
+ * Shows the loading-element and hides all the other elements
+ */
 function showSpinner() {
   hideElement(app);
   showElement(spinner);
 }
 
-/*
-* JS Proxy -> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy#Validation
-*/
+/**
+ * Returns a Proxy which checks every request on the object
+ * JS Proxy -> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy#Validation
+ */
 function getUserPreferences() {
   // Array of all possible Keys, that the user is allowed to access
   const possibleKeys = [ 
@@ -129,9 +170,13 @@ function getUserPreferences() {
     },
     set: (obj, prop, value) => {
       if(prop === 'jobId') {
+        // the side-effect of the set jobId:
+        // removes all couseItems from the localStorage 
         window.localStorage.removeItem('courseId');
         window.localStorage.removeItem('courseName');
       }
+      // it checks if the requested property exists in the array (possibleKeys)
+      // if true it returns the value of the localStorage otherwise it returns null
       possibleKeys.includes(prop) ? window.localStorage.setItem(prop, value) : null;
     },
   }
@@ -139,13 +184,13 @@ function getUserPreferences() {
 };
 
 
-//autor: hd https://gist.github.com/hdahlheim
 /**
  * Factory function for creating an object that is capable of generating the
  * week string needed for the gibm timetable API. You can add and subtract 
  * a week or reset the Date to the current week. To get week string use
  * the `_getWeekAndYearString()` function. The object uses a closure 
  * to keep the date object private to prevent unintended changes. 
+ * author: hd https://gist.github.com/hdahlheim
  * 
  * Usage:
  *
@@ -205,7 +250,9 @@ function createWeekCalculator(initalDate) {
   }
 }
 
-
+/**
+ * displays the job-data as a HTML-job-selector
+ */
 function showJobs() {
   showSpinner();
   getJobs()
@@ -224,8 +271,13 @@ function showJobs() {
     });
 }
 
-function showCourses(params) {
-  getCourses(params)
+/**
+ * Displays the course-data as a HTML-course-selector
+ * 
+ * @param {String} jobId
+ */
+function showCourses(jobId) {
+  getCourses(jobId)
     .then((data) => {
       hideElement(courseContainer)
       if (timetablePreferences.courseId === null) {
@@ -244,6 +296,11 @@ function showCourses(params) {
     });
 }
 
+/**
+ * displays the table-data as a HTML-time-table
+ * 
+ * @param {String} courseId
+ */
 function showTimetable(courseId) {
   getTimetable(courseId)
     .then((rows) => {
@@ -288,6 +345,10 @@ function showTimetable(courseId) {
     });
 }
 
+/**
+ * Returns all the job-Data from the GIBM-API
+ * or displays an error Alert if the fetch fails
+ */
 function getJobs() {
   const url = "http://sandbox.gibm.ch/berufe.php";
   return $.getJSON(url, null)
@@ -299,9 +360,15 @@ function getJobs() {
     });
 }
 
-function getCourses(param) {
+/**
+ * Returns the course-Data matching to the jobId, from the GIBM-API
+ * or displays an error Alert if the fetch fails
+ * 
+ * @param {String} jobId
+ */
+function getCourses(jobId) {
   const url = "http://sandbox.gibm.ch/klassen.php";
-  const queryParam = param ? { beruf_id: param } : null;
+  const queryParam = jobId ? { beruf_id: jobId } : null;
   return $.getJSON(url, queryParam)
     .done((data) => {
       return data;
@@ -311,6 +378,12 @@ function getCourses(param) {
     });
 }
 
+/**
+ * Returns the table-Data matching to the courseId, from the GIBM-API
+ * or displays an error Alert if the fetch fails
+ * 
+ * @param {String} courseId
+ */
 function getTimetable(courseId) {
   const url = "http://sandbox.gibm.ch/tafel.php";
   const queryParams = { klasse_id: courseId, woche: date.getWeekString() };
