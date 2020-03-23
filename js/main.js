@@ -33,125 +33,30 @@ const fadeInElement = (element) => element.fadeIn(1000);
 
 
 $(function () {
-  function showJobs() {
-    showSpinner();
-    getJobs()
-      .then((data) => {
-        if (timetablePreferences.jobId === null) {
-          replaceContent(jobs, '<option value="" disabled selected>Select your job</option>');
-        } else {
-          replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
-          showCourses(timetablePreferences.jobId);
-        }
 
-        const selectOptions = data.map((job) => `
-          <option value="${job.beruf_id}">
-            ${job.beruf_name}
-          </option>`
-        );
+  showJobs();
 
-        jobs
-          .append(selectOptions)
-        
-        showBody();
-      });
-  }
+  jobs.change(({ currentTarget }) => {
+    window.localStorage.clear();
+    hideElement(tableContainer);
 
-  jobs
-    .change(({ currentTarget }) => {
-      window.localStorage.clear();
-      hideElement(tableContainer);
+    if (currentTarget.value == "") {
+      hideElement(courseContainer);
+    } else {
+      timetablePreferences.jobId = currentTarget.value;
+      timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
+      showCourses(currentTarget.value);
+    }
+  });
 
-      if (currentTarget.value == "") {
-        hideElement(courseContainer)
-      } else {
-        timetablePreferences.jobId = currentTarget.value;
-        timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
-        showCourses(currentTarget.value);
-      }
+  courses.change(({ currentTarget }) => {
+    timetablePreferences.courseId = currentTarget.value;
+    timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
 
+    date.reset();
 
-    });
-
-  function showCourses(params) {
-    getCourses(params)
-      .then((data) => {
-        hideElement(courseContainer)
-        if (timetablePreferences.courseId === null) {
-          replaceContent(courses, '<option value="" disabled selected>Select your class</option>');
-        } else {
-          replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
-          showTimetable(timetablePreferences.courseId);
-        }
-
-        const selectOptions = data.map((course) =>
-          `<option value="${course.klasse_id}">
-            ${course.klasse_name}
-          </option>`
-        );
-        
-        courses.append(selectOptions)
-          
-        fadeInElement(courseContainer);
-        // showElement(courseContainer);
-        showBody();
-      });
-  }
-
-  courses
-    .change(({ currentTarget }) => {
-        timetablePreferences.courseId = currentTarget.value;
-        timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
-
-        date.reset();
-
-        showTimetable(currentTarget.value);
-    });
-
-  function showTimetable(courseId) {
-    getTimetable(courseId)
-      .then((rows) => {
-        hideElement(tableContainer)
-        if(rows.length < 1) {
-          hideElement(tableElement);
-          showElement(noSchedule);
-
-        } else {
-          hideElement(noSchedule);
-          showElement(tableElement);
-
-          const dayNames = [
-            "Sonntag",
-            "Montag",
-            "Dienstag",
-            "Mittwoch",
-            "Donnerstag",
-            "Freitag",
-            "Samstag"
-          ];
-
-          const tableContent = rows.map((row) =>
-          `<tr>
-          ${cell(row.tafel_datum)}
-          ${cell(dayNames[row.tafel_wochentag])}
-          ${cell(row.tafel_von)}
-          ${cell(row.tafel_bis)}
-          ${cell(row.tafel_lehrer)}
-          ${cell(row.tafel_longfach)}
-          ${cell(row.tafel_raum)}
-          </tr>`
-          );
-
-          replaceContent(tableBody, tableContent);
-        }
-
-        const datePreviewContent = `<p>${date.getWeekString()}</p>`;
-        replaceContent(datePreview, datePreviewContent);
-
-        showBody();
-        fadeInElement(tableContainer);
-      });
-  }
+    showTimetable(currentTarget.value);
+  });
 
   prevBtn.click(() => {
     date.subtractWeek();
@@ -162,68 +67,42 @@ $(function () {
     date.addWeek();
     showTimetable(timetablePreferences.courseId);
   });
-
-  function getJobs() {
-    const url = "http://sandbox.gibm.ch/berufe.php"
-    return $.getJSON(url, null)
-      .done((data) => {
-        return data
-      })
-      .fail(() => {
-        errorAlert("job Server Error");
-        return []
-      });
-  }
-
-  function getCourses(param) {
-    const url = "http://sandbox.gibm.ch/klassen.php"
-    const queryParam = param ? { beruf_id: param } : null
-    return $.getJSON(url, queryParam)
-      .done((data) => {
-        return data
-      })
-      .fail(() => {
-        errorAlert("classes Server Error");
-        return []
-      });
-  }
-
-  function getTimetable(courseId) {
-    const url = "http://sandbox.gibm.ch/tafel.php";
-    const queryParams = { klasse_id: courseId, woche: date.getWeekString() }
-    return $.getJSON(url, queryParams)
-      .done((data) => {
-        return data
-      })
-      .fail(() => {
-        errorAlert("Timetable Server Error");
-        return []
-      });
-  }
-
-  showJobs();
 });
 
+/**
+ * Returns an array of options strings
+ * @param {Array} data
+ * @param {Array} keys [id, name]
+ */
+function createOptions(data, keys) {
+  const [id, name] = keys;
+  return data.map((entry) => `
+    <option value="${entry[id]}">
+      ${entry[name]}
+    </option>`
+  );
+}
+
 function cell(content) {
-  return `<td class="border px-4 py-2">${content}</td>`
+  return `<td class="border px-4 py-2">${content}</td>`;
 }
 
 function errorAlert(message) {
-  hideElement(spinner)
-  hideElement(app)
-  window.localStorage.clear()
-  errorAlertMessage.text(message)
-  showElement(errorAlertContainer)
+  hideElement(spinner);
+  hideElement(app);
+  window.localStorage.clear();
+  errorAlertMessage.text(message);
+  showElement(errorAlertContainer);
 }
 
 function showBody() {
-  hideElement(spinner)
-  showElement(app)
+  hideElement(spinner);
+  showElement(app);
 }
 
 function showSpinner() {
-  hideElement(app)
-  showElement(spinner)
+  hideElement(app);
+  showElement(spinner);
 }
 
 /*
@@ -236,7 +115,7 @@ function getUserPreferences() {
     'jobName',
     'courseId',
     'courseName',
-  ]
+  ];
 
   /* 
   * in the handler obj i "prepare" different functions / actions / returns 
@@ -250,17 +129,17 @@ function getUserPreferences() {
     },
     set: (obj, prop, value) => {
       if(prop === 'jobId') {
-        window.localStorage.removeItem('courseId')
-        window.localStorage.removeItem('courseName')
+        window.localStorage.removeItem('courseId');
+        window.localStorage.removeItem('courseName');
       }
       possibleKeys.includes(prop) ? window.localStorage.setItem(prop, value) : null;
     },
   }
-  return new Proxy({}, handler)
+  return new Proxy({}, handler);
 };
 
 
-//autor: hd https://gist.github.com/hdahlheim/c756e1ee3a714469c92f2b9cb76fd78d
+//autor: hd https://gist.github.com/hdahlheim
 /**
  * Factory function for creating an object that is capable of generating the
  * week string needed for the gibm timetable API. You can add and subtract 
@@ -326,3 +205,120 @@ function createWeekCalculator(initalDate) {
   }
 }
 
+
+function showJobs() {
+  showSpinner();
+  getJobs()
+    .then((data) => {
+      if (timetablePreferences.jobId === null) {
+        replaceContent(jobs, '<option value="" disabled selected>Select your job</option>');
+      } else {
+        replaceContent(jobs, `<option value="${timetablePreferences.jobId}">${timetablePreferences.jobName}</option>`);
+        showCourses(timetablePreferences.jobId);
+      }
+      const selectOptions = createOptions(data, ["beruf_id", "beruf_name"]);
+
+      jobs.append(selectOptions);
+      
+      showBody();
+    });
+}
+
+function showCourses(params) {
+  getCourses(params)
+    .then((data) => {
+      hideElement(courseContainer)
+      if (timetablePreferences.courseId === null) {
+        replaceContent(courses, '<option value="" disabled selected>Select your class</option>');
+      } else {
+        replaceContent(courses, `<option value="${timetablePreferences.courseId}">${timetablePreferences.courseName}</option>`);
+        showTimetable(timetablePreferences.courseId);
+      }
+
+      const selectOptions = createOptions(data, ["klasse_id", "klasse_name"]);
+      courses.append(selectOptions);
+        
+      fadeInElement(courseContainer);
+      // showElement(courseContainer);
+      showBody();
+    });
+}
+
+function showTimetable(courseId) {
+  getTimetable(courseId)
+    .then((rows) => {
+      hideElement(tableContainer);
+      if(rows.length < 1) {
+        hideElement(tableElement);
+        showElement(noSchedule);
+      } else {
+        hideElement(noSchedule);
+        showElement(tableElement);
+
+        const dayNames = [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ];
+
+        const tableContent = rows.map((row) =>
+        `<tr>
+        ${cell(row.tafel_datum)}
+        ${cell(dayNames[row.tafel_wochentag])}
+        ${cell(row.tafel_von)}
+        ${cell(row.tafel_bis)}
+        ${cell(row.tafel_lehrer)}
+        ${cell(row.tafel_longfach)}
+        ${cell(row.tafel_raum)}
+        </tr>`
+        );
+
+        replaceContent(tableBody, tableContent);
+      }
+
+      const datePreviewContent = `<p>${date.getWeekString()}</p>`;
+      replaceContent(datePreview, datePreviewContent);
+
+      showBody();
+      fadeInElement(tableContainer);
+    });
+}
+
+function getJobs() {
+  const url = "http://sandbox.gibm.ch/berufe.php";
+  return $.getJSON(url, null)
+    .done((data) => {
+      return data;
+    })
+    .fail(() => {
+      errorAlert("job Server Error");
+    });
+}
+
+function getCourses(param) {
+  const url = "http://sandbox.gibm.ch/klassen.php";
+  const queryParam = param ? { beruf_id: param } : null;
+  return $.getJSON(url, queryParam)
+    .done((data) => {
+      return data;
+    })
+    .fail(() => {
+      errorAlert("classes Server Error");
+    });
+}
+
+function getTimetable(courseId) {
+  const url = "http://sandbox.gibm.ch/tafel.php";
+  const queryParams = { klasse_id: courseId, woche: date.getWeekString() };
+  return $.getJSON(url, queryParams)
+    .done((data) => {
+      return data;
+    })
+    .fail(() => {
+      errorAlert("Timetable Server Error");
+    });
+}
