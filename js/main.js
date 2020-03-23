@@ -61,13 +61,10 @@ $(function () {
     window.localStorage.clear();
     hideElement(tableContainer);
 
-    if (currentTarget.value == "") {
-      hideElement(courseContainer);
-    } else {
-      timetablePreferences.jobId = currentTarget.value;
-      timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
-      showCourses(currentTarget.value);
-    }
+    timetablePreferences.jobId = currentTarget.value;
+    timetablePreferences.jobName = currentTarget.selectedOptions[0].innerText;
+
+    showCourses(currentTarget.value);
   });
 
   courses.change(({ currentTarget }) => {
@@ -183,7 +180,6 @@ function getUserPreferences() {
   return new Proxy({}, handler);
 };
 
-
 /**
  * Factory function for creating an object that is capable of generating the
  * week string needed for the gibm timetable API. You can add and subtract 
@@ -200,10 +196,10 @@ function getUserPreferences() {
  * date.getWeekAndYear() // '12-2020'
  * ```
  *
- * @param {String} initalDate
+ * @param {String} initialDate
  */
-function createWeekCalculator(initalDate) {
-  let date = initalDate ? new Date(initalDate) : new Date()
+function createWeekCalculator(initialDate) {
+  let date = initialDate ? new Date(initialDate) : new Date()
   const WEEK = 604800000
   const DAY = 86400000
 
