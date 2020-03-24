@@ -1,3 +1,4 @@
+// initialization of the Ui-element-variables
 const jobs = $("#jobs");
 
 const courses = $("#courses");
@@ -53,10 +54,16 @@ const hideElement = (element) => element.hide();
 const fadeInElement = (element) => element.fadeIn(1000);
 
 
+//execute the function when the DOM (Document Object Model) is fully loaded
+//its a shorthand for: $( "document" ).ready( handler )
+// whole application get initialized
 $(function () {
 
   showJobs();
 
+  // Adds an on-change-Eventlistener to the jobselector
+  // Sets the job values in the localstorage,
+  // and shows the Courseselector after every change
   jobs.change(({ currentTarget }) => {
     window.localStorage.clear();
     hideElement(tableContainer);
@@ -67,6 +74,10 @@ $(function () {
     showCourses(currentTarget.value);
   });
 
+  // Adds an on-change-Eventlistener to the courseselector
+  // Sets the course values in the localstorage,
+  // resets the date to the curent week
+  // and shows the Timetable after every change
   courses.change(({ currentTarget }) => {
     timetablePreferences.courseId = currentTarget.value;
     timetablePreferences.courseName = currentTarget.selectedOptions[0].innerText;
@@ -76,11 +87,15 @@ $(function () {
     showTimetable(currentTarget.value);
   });
 
+  // Adds an click-Eventlistener to the prev Btn
+  // shows the previous week
   prevBtn.click(() => {
     date.subtractWeek();
     showTimetable(timetablePreferences.courseId);
   });
 
+  // Adds an click-Event-listener to the next Btn
+  // shows the next week
   nextBtn.click(() => {
     date.addWeek();
     showTimetable(timetablePreferences.courseId);
@@ -210,7 +225,7 @@ function createWeekCalculator(initialDate) {
   const _getWeekAndYearString = (date) => {
     // Temporary date to prevent mutation
     const tempDate = new Date(date.valueOf())
-    tempDate.setHours(0, 0, 0)
+    tempDate.setHours(0, 0, 0, 0)
     // Set to the nearest Thursday (current date + 4 - current day number)
     tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7))
     // Get first day of year
