@@ -53,6 +53,13 @@ const hideElement = (element) => element.hide();
  */
 const fadeInElement = (element) => element.fadeIn(1000);
 
+/**
+ * Trims the time-format from 00:00:00 to 00:00
+ * 
+ * @param {String} time 
+ */
+const toShortTime = time => time.slice(0, 5);
+
 
 //execute the function when the DOM (Document Object Model) is fully loaded
 //its a shorthand for: $( "document" ).ready( handler )
@@ -337,8 +344,8 @@ function showTimetable(courseId) {
         `<tr>
         ${cell(row.tafel_datum)}
         ${cell(dayNames[row.tafel_wochentag])}
-        ${cell(row.tafel_von)}
-        ${cell(row.tafel_bis)}
+        ${cell(toShortTime(row.tafel_von))}
+        ${cell(toShortTime(row.tafel_bis))}
         ${cell(row.tafel_lehrer)}
         ${cell(row.tafel_longfach)}
         ${cell(row.tafel_raum)}
