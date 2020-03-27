@@ -5,7 +5,8 @@
   "main": "tailwind.config.js",
   "scripts": {
     "build-css-dev": "postcss css/tailwind.css -o css/output.css",
-    "build-css-prod": "NODE_ENV=production postcss css/tailwind.css -o css/output.css"
+    "build-css-prod": "NODE_ENV=production postcss css/tailwind.css -o css/output.css",
+    "test": "jest --watchAll --collectCoverage"
   },
   "repository": {
     "type": "git",
@@ -20,11 +21,13 @@
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^2.1.0",
     "cssnano": "^4.1.10",
+    "jquery": "^3.4.1",
     "postcss": "^7.0.27",
     "postcss-cli": "^7.1.0",
     "tailwindcss": "^1.2.0"
   },
   "devDependencies": {
+    "jest": "^25.2.1",
     "tailwindcss-spinner": "^1.0.0"
   }
 }
