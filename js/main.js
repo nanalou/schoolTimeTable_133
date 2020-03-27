@@ -58,7 +58,7 @@ const fadeInElement = (element) => element.fadeIn(1000);
  * 
  * @param {String} time 
  */
-const toShortTime = time => time.slice(0, 5);
+const toShortTime = (time) => time.slice(0, 5);
 
 
 //execute the function when the DOM (Document Object Model) is fully loaded
@@ -242,13 +242,6 @@ function createWeekCalculator(initialDate) {
     // Return ISO week number and Year
     return `${weekNumber}-${yearStart.getFullYear()}`
   }
-
-  const getThursday = () => {
-    const tempDate = new Date(date.valueOf())
-    tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7))
-    return new Date(tempDate.valueOf()).getTime()
-  }
-
 
   return {
     getWeekString() {
