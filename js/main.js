@@ -1,4 +1,6 @@
 // initialization of the Ui-element-variables
+const $ = require('jquery');
+
 const jobs = $("#jobs");
 
 const courses = $("#courses");
