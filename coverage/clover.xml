@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1585575650492" clover="3.2.0">
-  <project timestamp="1585575650493" name="All files">
+<coverage generated="1585814482000" clover="3.2.0">
+  <project timestamp="1585814482000" name="All files">
     <metrics statements="145" coveredstatements="49" conditionals="22" coveredconditionals="4" methods="47" coveredmethods="7" elements="214" coveredelements="60" complexity="0" loc="145" ncloc="145" packages="1" files="2" classes="2"/>
     <file name="date.js" path="/Users/tvogel/Documents/schule/gibmit/133_Modul/shoolTimeTable_133/js/date.js">
       <metrics statements="18" coveredstatements="17" conditionals="4" coveredconditionals="3" methods="6" coveredmethods="5"/>
