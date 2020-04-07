@@ -1,3 +1,4 @@
+const $ = require('jquery')
 // initialization of the Ui-element-variables
 const jobs = $("#jobs");
 
@@ -406,3 +407,5 @@ function getTimetable(courseId) {
       errorAlert("Timetable Server Error");
     });
 }
+
+module.exports = { toShortTime, createWeekCalculator, createOptions, cell};
