@@ -10,11 +10,21 @@ describe("shorts the time-string", () => {
   })
 });
 
-describe("create cell-html component", () => {
+describe("create html component", () => {
   test("cell function is given", () => {
     expect(cell).toBeDefined();
   })
   test("cell-component renders correctly", () => {
     expect(cell('test')).toMatchSnapshot();
+  })
+  test("createOption function is given", () => {
+    expect(createOptions).toBeDefined();
+  })
+  test("option-component renders correctly", () => {
+    const data = [ 
+      id => '42',
+      name => 'testName'
+    ];
+    expect(createOptions(data, ['id', 'name'])).toMatchSnapshot();
   })
 })

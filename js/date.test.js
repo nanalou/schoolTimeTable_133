@@ -41,6 +41,10 @@ describe("weekCalc", () => {
     }
     expect(date.getWeekString()).toBe('53-2020');
   })
+  test("is the european calendar week", () => {
+    const date = createWeekCalculator('2020-01-05');
+    expect(date.getWeekString()).toBe('1-2020');
+  })
 })
 
 //montag sonntag
