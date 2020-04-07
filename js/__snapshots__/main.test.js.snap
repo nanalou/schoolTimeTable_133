@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`create cell-html component cell-component renders correctly 1`] = `"<td class=\\"border px-4 py-2\\">test</td>"`;

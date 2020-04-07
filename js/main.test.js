@@ -10,8 +10,11 @@ describe("shorts the time-string", () => {
   })
 });
 
-// describe("Returns the job-Data", () => {
-//   test("there should be a getJobs function", () => {
-//     expect(getJobs).toBeDefined();
-//   })
-// })
+describe("create cell-html component", () => {
+  test("cell function is given", () => {
+    expect(cell).toBeDefined();
+  })
+  test("cell-component renders correctly", () => {
+    expect(cell('test')).toMatchSnapshot();
+  })
+})
