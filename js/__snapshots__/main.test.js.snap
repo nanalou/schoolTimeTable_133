@@ -1,23 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`create cell-html component cell-component renders correctly 1`] = `"<td class=\\"border px-4 py-2\\">test</td>"`;
+exports[`create html component create a cell-html component cell-component renders correctly 1`] = `"<td class=\\"border px-4 py-2\\">test</td>"`;
 
-exports[`create html component cell-component renders correctly 1`] = `"<td class=\\"border px-4 py-2\\">test</td>"`;
-
-exports[`create html component option-component renders correctly 1`] = `
-Array [
-  "
-    <option value=\\"undefined\\">
-      
-    </option>",
-  "
-    <option value=\\"undefined\\">
-      
-    </option>",
-]
-`;
-
-exports[`create option-html component option-component renders correctly 1`] = `
+exports[`create html component create option-html components option-component renders correctly 1`] = `
 Array [
   "
     <option value=\\"undefined\\">

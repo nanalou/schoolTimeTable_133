@@ -11,20 +11,24 @@ describe("shorts the time-string", () => {
 });
 
 describe("create html component", () => {
-  test("cell function is given", () => {
-    expect(cell).toBeDefined();
-  })
-  test("cell-component renders correctly", () => {
-    expect(cell('test')).toMatchSnapshot();
-  })
-  test("createOption function is given", () => {
-    expect(createOptions).toBeDefined();
-  })
-  test("option-component renders correctly", () => {
-    const data = [ 
-      id => '42',
-      name => 'testName'
-    ];
-    expect(createOptions(data, ['id', 'name'])).toMatchSnapshot();
+  describe("create a cell-html component", () => {
+    test("cell function is given", () => {
+      expect(cell).toBeDefined();
+    })
+    test("cell-component renders correctly", () => {
+      expect(cell('test')).toMatchSnapshot();
+    })
+  }),
+  describe("create option-html components", () => {
+    test("createOption function is given", () => {
+      expect(createOptions).toBeDefined();
+    })
+    test("option-component renders correctly", () => {
+      const data = [ 
+        id => '42',
+        name => 'testName'
+      ];
+      expect(createOptions(data, ['id', 'name'])).toMatchSnapshot();
+    })
   })
 })

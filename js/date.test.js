@@ -23,14 +23,9 @@ describe("weekCalc", () => {
     date2.addWeek();
     expect(date2.getWeekString()).toBe('1-2021');
   })
-  test("for the current date it should give the current week number", () => {
-    const someDate = new Date('2020-1-1');
-    const someDateWeek = '1-2020';
-
-    const aDay = `${someDate.getFullYear()}-${someDate.getMonth()+1}-${someDate.getDate()}`;
-    const date = createWeekCalculator(aDay);
-
-    expect(date.getWeekString()).toBe(someDateWeek);
+  test("should return the current week-number", () => {
+    const date = createWeekCalculator('2020-01-02');
+    expect(date.getWeekString()).toBe('1-2020');
   })
   test("go through all the weeks", () => {
     const date = createWeekCalculator('2020-01-01');
@@ -46,5 +41,3 @@ describe("weekCalc", () => {
     expect(date.getWeekString()).toBe('1-2020');
   })
 })
-
-//montag sonntag
