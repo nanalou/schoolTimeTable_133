@@ -1,6 +1,10 @@
 const {createWeekCalculator} = require('./main');
 
 describe("weekCalc", () => {
+  test("should return the current week-number", () => {
+    const date = createWeekCalculator('2020-01-02');
+    expect(date.getWeekString()).toBe('1-2020');
+  })
   test("createWeekCalculator function is given", () => {
     expect(createWeekCalculator).toBeDefined();
   })
@@ -22,10 +26,6 @@ describe("weekCalc", () => {
     const date2 = createWeekCalculator('2020-12-28');
     date2.addWeek();
     expect(date2.getWeekString()).toBe('1-2021');
-  })
-  test("should return the current week-number", () => {
-    const date = createWeekCalculator('2020-01-02');
-    expect(date.getWeekString()).toBe('1-2020');
   })
   test("go through all the weeks", () => {
     const date = createWeekCalculator('2020-01-01');

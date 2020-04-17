@@ -1,7 +1,7 @@
 const { toShortTime, createOptions, cell } = require('./main');
 
 describe("shorts the time-string", () => {
-  test("createWeekCalculator function is given", () => {
+  test("toShortTime function is given", () => {
     expect(toShortTime).toBeDefined();
   }),
   test("should short the time to only hours and min", () => {
